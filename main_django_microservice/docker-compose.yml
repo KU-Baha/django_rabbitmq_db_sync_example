@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: backend-main
+    restart: unless-stopped
+    command: /start.sh
+    depends_on:
+      - db
+    ports:
+      - "8001:8000"
+    networks:
+      - backend
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src
+
+  queue:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: queue-main
+    restart: unless-stopped
+    command: /queue.sh
+    depends_on:
+      - db
+    volumes:
+      - ./src:/app/src
+    env_file:
+      - .env
+    networks:
+      - backend
+
+  db:
+    image: postgres:12.0-alpine
+    container_name: db-main
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - backend
+    env_file:
+      - .env
+    ports:
+      - "4321:5432"
+
+
+networks:
+  backend:
+
+volumes:
+  postgres_data:

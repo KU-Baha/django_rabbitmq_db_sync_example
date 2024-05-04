@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: backend-admin
+    restart: unless-stopped
+    command: /start.sh
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    networks:
+      - backend
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src
+
+  db:
+    image: postgres:12.0-alpine
+    container_name: db_admin
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - backend
+    env_file:
+      - .env
+    ports:
+      - "1234:5432"
+
+
+networks:
+  backend:
+
+volumes:
+  postgres_data:
